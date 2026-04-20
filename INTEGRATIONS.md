@@ -13,6 +13,8 @@ Queue of community skills/MCPs to evaluate and wrap as skills in this plugin.
 ## International import / cross-border
 
 - [`rootsbymenda/iherbchecker`](https://github.com/rootsbymenda/iherbchecker) — iHerb checker. iHerb is a go-to for supplements shipping to Israel; a skill wrapping this would complement the domestic pharmacy search and the existing AliExpress/Amazon callout in `il-tech-search`.
+- [`justinritchie/aliexpress-mcp-server`](https://github.com/justinritchie/aliexpress-mcp-server) — AliExpress MCP. High priority: AliExpress is the dominant cross-border vendor for Israeli tech/home buyers. Wrap as a skill for product lookup + price-to-ILS comparison against domestic retailers.
+- **Amazon (no candidate yet)** — need an MCP covering amazon.com product data **and** Israel shipping eligibility (ships-to-IL flag, import fee deposit estimate). Evaluate existing Amazon MCPs; if none handle IL shipping, scope a minimal wrapper around the PA-API or a scraper that checks the "Deliver to Israel" availability on the product page.
 
 ## Pharmacy
 
