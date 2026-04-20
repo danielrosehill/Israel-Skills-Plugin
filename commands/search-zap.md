@@ -7,7 +7,9 @@ description: Search zap.co.il — the canonical Israeli price-comparison aggrega
 
 Zap is the canonical Israeli price-comparison aggregator. One Zap search returns a ranked table of all vendors carrying the product, with prices, so it's materially more efficient than hitting each retailer's search endpoint independently.
 
-**Make this the default first-pass** for any cross-retailer price comparison. Only fall through to `search-main-tech-stores` or per-retailer workflows when Zap misses (new SKU, niche specialist product, or Zap search returns nothing).
+**Make this the default first-pass** for any cross-retailer price comparison. Only fall through to `/tech-product-search` or `/general-search` when Zap misses (new SKU, niche specialist product, or Zap search returns nothing).
+
+> See `docs/search-strategies.md` § Zap for full URL patterns and workflow, § Hebrew-term resolution for the preflight, and § store-metadata merge convention for the merged-list rule used when flagging vendors.
 
 ## Backend
 
@@ -15,13 +17,11 @@ Playwright MCP. Zap has bot detection; Tavily's indexed snapshots are often stal
 
 ## Preflight — Hebrew term resolution
 
-Zap search is dramatically better with Hebrew queries. Before searching:
-
-1. Check `data/hebrew-category-map.json` for the product class.
-2. If missing, run `discover-hebrew-term` first.
-3. Build the query: `<hebrew term> <brand> <model>` — keep brand + model in Latin.
+Zap search is dramatically better with Hebrew queries. Build: `<hebrew term> <brand> <model>` — brand + model stay Latin.
 
 Example: `עמדת טעינה Anker Prime A2343`, not `"Anker Prime A2343 desktop charging station"`.
+
+Full resolution procedure (including reverse-lookup from listings when the term is unknown) is in `docs/search-strategies.md` § Hebrew-term resolution.
 
 ## URL patterns
 
@@ -90,9 +90,8 @@ Vendors found: {count}
 
 If the keyword search returns no model page, or the vendor table is empty/very short, fall through in this order:
 
-1. **`search-google-il`** — catches specialist retailers Zap doesn't index. Run `<brand model> site:.il` and `מחיר <hebrew term>`.
-2. **`search-main-tech-stores`** — direct queries to KSP/Ivory/Bug/TMS.
-3. **`search-by-category`** — category-filtered search across `israeli-stores.json`.
+1. **`/general-search`** — Google IL discovery + category-dispatched search catches specialists Zap doesn't index.
+2. **`/tech-product-search`** — direct queries to KSP/Ivory/Bug/TMS.
 
 Tell the user why Zap didn't work (new product, niche, SKU variant not indexed) so they know whether the fallback results are representative.
 
