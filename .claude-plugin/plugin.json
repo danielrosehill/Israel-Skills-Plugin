@@ -1,12 +1,12 @@
 {
-  "name": "israel-skills",
-  "version": "1.0.0",
-  "description": "Israel-specific Claude Code agent skills — Hebrew, Israeli services, local utilities.",
+  "name": "israel-shopping",
+  "version": "1.1.0",
+  "description": "Israeli shopping workflows — tech retailers (Ivory, KSP, Bug, TMS), Zap price comparison, Hebrew term resolution, ILS conversion, and RRP/market checks.",
   "author": {
     "name": "Daniel Rosehill",
     "url": "https://github.com/danielrosehill"
   },
-  "repository": "https://github.com/danielrosehill/Israel-Skills-Plugin",
+  "repository": "https://github.com/danielrosehill/Claude-Israel-Shopping-Plugin",
   "license": "MIT",
-  "keywords": ["israel", "hebrew", "localization", "skills"]
+  "keywords": ["israel", "shopping", "retail", "hebrew", "ecommerce", "zap", "ksp", "ivory"]
 }

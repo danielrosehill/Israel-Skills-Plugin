@@ -1,10 +1,18 @@
-# Israel-Skills
+# Israel-Shopping
 
-Israel-specific Claude Code agent skills and commands — Hebrew, Israeli services, local retail, and regional utilities.
+Israeli shopping workflows for Claude Code — tech retailers, Zap price comparison, Hebrew term resolution, ILS conversion, and RRP/market checks.
 
-## Commands
+> Renamed from `Israel-Skills` on 2026-04-20. The scope was always shopping; the new name reflects it. Non-shopping Israel utilities will live in a separate plugin.
 
-Retail & shopping (migrated from the `shopping` plugin):
+## Skills (auto-invoked)
+
+- `il-tech-search` — search Ivory, KSP, Bug, TMS in Hebrew with Playwright fallback for bot-detected retailers.
+
+More skills to come: grocery search (Shufersal, Rami Levy), pharmacy search (Clalit, Maccabi), RRP check, ILS conversion. Upstream candidates tracked in [`INTEGRATIONS.md`](INTEGRATIONS.md).
+
+## Commands (slash)
+
+Retail & shopping:
 
 - `israel-search-zap` — query zap.co.il, the canonical Israeli price-comparison aggregator
 - `israel-search-google-il` — `site:.il` / Hebrew-keyword Google discovery
@@ -18,15 +26,15 @@ Retail & shopping (migrated from the `shopping` plugin):
 - `israel-source` — apply the Israeli sourcing waterfall (tier-1 tech → major retailers → Zap)
 - `israel-add-store` — append a vendor to the Israeli store database with auto-dedup
 
-## Skills
+## Data
 
-_To be added._
+Store metadata is read live from [`danielrosehill/Israel-Online-Stores`](https://github.com/danielrosehill/Israel-Online-Stores) (`stores.json`) — 800+ Israeli retailers with tier, delivery, Eilat-door, and Zap-profile metadata.
 
 ## Installation
 
 ```bash
 claude plugins marketplace add danielrosehill/Claude-Code-Plugins
-claude plugins install israel-skills@danielrosehill
+claude plugins install israel-shopping@danielrosehill
 ```
 
 ## License
