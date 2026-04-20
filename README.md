@@ -1,6 +1,6 @@
-# Israel-Shopping
-
 ![banner](banner.png)
+
+# Israel-Shopping
 
 Israeli shopping workflows for Claude Code — tech retailers, Zap price comparison, Hebrew term resolution, ILS conversion, and RRP/market checks.
 
