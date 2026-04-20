@@ -1,5 +1,7 @@
 # Israel-Shopping
 
+![banner](banner.png)
+
 Israeli shopping workflows for Claude Code — tech retailers, Zap price comparison, Hebrew term resolution, ILS conversion, and RRP/market checks.
 
 > Renamed from `Israel-Skills` on 2026-04-20. The scope was always shopping; the new name reflects it. Non-shopping Israel utilities will live in a separate plugin.
