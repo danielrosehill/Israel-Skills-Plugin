@@ -10,6 +10,13 @@ Queue of community skills/MCPs to evaluate and wrap as skills in this plugin.
 - [`danielJL-altius/israelgrocerymcp`](https://github.com/danielJL-altius/israelgrocerymcp) — another grocery MCP. Compare with shufersal-mcp before picking.
 - [`asafr93-rosa/shopping-list-il`](https://github.com/asafr93-rosa/shopping-list-il) — shopping-list tool. Complementary to price search.
 
+## Israeli retailers & price comparison (domestic)
+
+- [`danielrosehill/Israeli-Tech-Shopping-MCP`](https://github.com/danielrosehill/Israeli-Tech-Shopping-MCP) — **own project.** MCP for browser-automation-driven comparison across Israeli tech retailers. Strongest first-class dependency candidate — covers the same ground as `israel-search-main-tech-stores` but via MCP instead of ad-hoc WebFetch. Priority: wrap as the default backend for the main-tech-stores and zap search skills if its coverage is current.
+- [`guymon92/ksp-mcp`](https://github.com/guymon92/ksp-mcp) — MCP for KSP.co.il, a tier-1 IL electronics retailer. Complements the above; could be a direct dependency for a `israel-search-ksp` skill or folded into the existing main-tech-stores search for deeper per-retailer queries.
+- [`Simtob-Eran/mcp-israeli-price-comparison`](https://github.com/Simtob-Eran/mcp-israeli-price-comparison) — generic Israeli price-comparison MCP. Evaluate scope and retailer coverage before deciding whether to depend on it vs. the Tech-Shopping MCP.
+- [`TalKleinBgu/Zap`](https://github.com/TalKleinBgu/Zap) — product deduplication pipeline (Hebrew/English normalization + FAISS + LLM cluster refinement) for Zap.co.il. Not an MCP, but useful reference logic if `israel-search-zap` needs smarter dedup across listings.
+
 ## International import / cross-border
 
 - [`rootsbymenda/iherbchecker`](https://github.com/rootsbymenda/iherbchecker) — iHerb checker. iHerb is a go-to for supplements shipping to Israel; a skill wrapping this would complement the domestic pharmacy search and the existing AliExpress/Amazon callout in `il-tech-search`.
