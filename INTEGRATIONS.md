@@ -26,6 +26,10 @@ Pharmacy is shopping-adjacent — OTC prices, product availability, and kupat ho
 - [`alexpolonsky/agent-skill-maccabi-pharm-search`](https://github.com/alexpolonsky/agent-skill-maccabi-pharm-search) — Maccabi pharmacy search.
 - [`skills-il/health-services`](https://github.com/skills-il/health-services) — broader health services. Check for pharmacy/drug-evaluation sub-skills worth lifting; the non-pharmacy parts belong in a future `Claude-Israel-Services` plugin.
 
+## Consumer rights / legal (optional reference)
+
+- [`Ansvar-Systems/israel-law-mcp`](https://github.com/Ansvar-Systems/israel-law-mcp) — hosted MCP exposing 66 Israeli statutes (`https://mcp.ansvar.eu/law-il/mcp`). Tangential to shopping but useful for return-rights / cooling-off-period / price-display / warranty questions **if** Consumer Protection Law (חוק הגנת הצרכן) is covered — the README highlights privacy/corporate/penal, so verify coverage before wrapping. Candidate for a future `israel-consumer-rights` skill.
+
 ## Status
 
 None integrated yet. Next step: clone, read each manifest, decide:
