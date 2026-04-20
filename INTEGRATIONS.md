@@ -10,6 +10,10 @@ Queue of community skills/MCPs to evaluate and wrap as skills in this plugin.
 - [`danielJL-altius/israelgrocerymcp`](https://github.com/danielJL-altius/israelgrocerymcp) — another grocery MCP. Compare with shufersal-mcp before picking.
 - [`asafr93-rosa/shopping-list-il`](https://github.com/asafr93-rosa/shopping-list-il) — shopping-list tool. Complementary to price search.
 
+## International import / cross-border
+
+- [`rootsbymenda/iherbchecker`](https://github.com/rootsbymenda/iherbchecker) — iHerb checker. iHerb is a go-to for supplements shipping to Israel; a skill wrapping this would complement the domestic pharmacy search and the existing AliExpress/Amazon callout in `il-tech-search`.
+
 ## Pharmacy
 
 Pharmacy is shopping-adjacent — OTC prices, product availability, and kupat holim discount tiers all matter. Folded into this plugin rather than a health plugin.
