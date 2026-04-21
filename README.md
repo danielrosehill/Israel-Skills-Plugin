@@ -23,7 +23,7 @@ Strategy and know-how (Hebrew terms, URL patterns, Playwright fallback, sourcing
 
 ## Data
 
-Store metadata is read live from [`danielrosehill/Israel-Online-Stores`](https://github.com/danielrosehill/Israel-Online-Stores) (`stores.json`) — 800+ Israeli retailers with tier, delivery, Eilat-door, and Zap-profile metadata. User-added stores overlay this list from `~/.claude/plugins-data/israel-shopping/user-stores.json` and survive plugin updates.
+Store metadata is read live from [`danielrosehill/Israel-Online-Stores`](https://github.com/danielrosehill/Israel-Online-Stores) (`stores.json`) — 800+ Israeli retailers with tier, delivery, Eilat-door, and Zap-profile metadata. User-added stores overlay this list from `<plugin-data-dir>/user-stores.json` (`$CLAUDE_USER_DATA/israel-shopping/user-stores.json`, or the XDG/`~/.local/share/claude-plugins/israel-shopping/` fallback — see the `meta-tools:plugin-data-storage` canonical skill) and survive plugin updates.
 
 # Sources
 

@@ -7,9 +7,9 @@ Agent-facing reference for the substantive know-how behind the plugin's search c
 All commands that consume the Israeli store list must **merge** two sources:
 
 1. **Upstream canonical list** — `https://raw.githubusercontent.com/danielrosehill/Israel-Online-Stores/main/stores.json` (live, 800+ entries). Read this first.
-2. **User overlay** — `~/.claude/plugins-data/israel-shopping/user-stores.json` (optional). If present, merge/append on top of the upstream list. Dedup by canonical URL / domain — user entries win on conflict.
+2. **User overlay** — `<plugin-data-dir>/user-stores.json` (optional). The plugin data directory resolves as `$CLAUDE_USER_DATA/israel-shopping/` if `CLAUDE_USER_DATA` is set; otherwise `$XDG_DATA_HOME/claude-plugins/israel-shopping/` if `XDG_DATA_HOME` is set; otherwise `~/.local/share/claude-plugins/israel-shopping/`. See the canonical convention in the `meta-tools:plugin-data-storage` skill. If present, merge/append on top of the upstream list. Dedup by canonical URL / domain — user entries win on conflict.
 
-Do not write user additions back into the plugin install directory — those get clobbered on plugin update. Only `~/.claude/plugins-data/israel-shopping/user-stores.json` persists across updates.
+Do not write user additions back into the plugin install directory — those get clobbered on plugin update. Only `<plugin-data-dir>/user-stores.json` persists across updates.
 
 Schema matches the upstream `stores.json` shape (name, url, categories[], is_tech, description, delivery, eilat_door, zap_profile, etc. — read a live entry to confirm the current shape before writing).
 

@@ -19,7 +19,7 @@ Playwright (Zap has bot detection). WebFetch may work for the profile page itsel
 
 ## Workflow
 
-1. **Load the merged store list** — check if the retailer already has a `zap_profile` URL recorded (upstream `stores.json` + `~/.claude/plugins-data/israel-shopping/user-stores.json`; see `docs/search-strategies.md`).
+1. **Load the merged store list** — check if the retailer already has a `zap_profile` URL recorded (upstream `stores.json` + `<plugin-data-dir>/user-stores.json (resolved via $CLAUDE_USER_DATA — see docs/search-strategies.md)`; see `docs/search-strategies.md`).
 2. **If known,** navigate directly to the profile URL (`https://www.zap.co.il/shop.aspx?sog=shop-<id>`).
 3. **If unknown,** search Zap for the retailer:
    - Navigate `https://www.zap.co.il/` and use the shop search, OR

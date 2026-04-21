@@ -22,7 +22,7 @@ For most cross-retailer price comparison, try `/search-zap` first. Come here whe
 
 1. **Classify the query** — does it fit tier-2 majors, a niche category, or does it need Google discovery?
 2. **Resolve Hebrew term** (preflight — see strategies doc).
-3. **Load the merged store list** — upstream `stores.json` overlaid with `~/.claude/plugins-data/israel-shopping/user-stores.json` (see strategies doc).
+3. **Load the merged store list** — upstream `stores.json` overlaid with `<plugin-data-dir>/user-stores.json (resolved via $CLAUDE_USER_DATA — see docs/search-strategies.md)` (see strategies doc).
 4. **Pick path:**
    - **Tier-2 majors** — search Ace, Home Center, Office Depot, Audioline via Playwright homepage form or Tavily.
    - **Category-dispatch** — filter merged store list by matching `categories[]`; pick up to 8 stores; search each.
