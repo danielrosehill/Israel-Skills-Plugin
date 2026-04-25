@@ -1,34 +1,38 @@
 ---
 name: fetch-listing-api
-description: Use when the user wants AliExpress product data fetched via the **official AliExpress Affiliate API** (HMAC-SHA256 signed requests against `api-sg.aliexpress.com/sync`) rather than the no-auth Puppeteer scraper. More reliable long-term, higher rate limits, structured response — but requires an approved AliExpress Affiliate app (App Key + App Secret + Access Token). Same output shape as `fetch-listing` so they are swappable. Trigger phrases — "use the aliexpress api", "fetch via affiliate api", "scrape is broken use the api".
+description: Use when the user wants AliExpress product data fetched via the **official AliExpress Affiliate API** (HMAC-SHA256 signed requests against `api-sg.aliexpress.com/sync`) rather than the no-auth Puppeteer scraper. More reliable long-term, higher rate limits, structured response. Supports two modes — `detail <productId>` for one or more product IDs, and `search <query>` for catalogue search. Output is normalised to drop affiliate-specific fields (commission rates, tracked promotion links) and surface only purchasing-relevant data: title, price USD, original price, rating, shop, plus computed ILS landed cost via live FX. Trigger phrases — "use the aliexpress api", "fetch via affiliate api", "scrape is broken use the api", "search aliexpress affiliate".
 ---
 
-# Fetch AliExpress Listing (Official API)
+# Fetch AliExpress Listing (Official Affiliate API)
 
-Authenticated counterpart to `fetch-listing`. Uses the AliExpress Affiliate Open Platform API instead of HTML scraping.
+Authenticated counterpart to `fetch-listing`. Uses the AliExpress Affiliate Open Platform API (signed with HMAC-SHA256) instead of HTML scraping.
 
-## Status: stub (awaiting credential validation)
+## Status: ✅ validated end-to-end
 
-This skill's auth scaffolding is wired but the request signing has not been validated end-to-end against a live, approved app. The first successful round-trip will be against Daniel's `DSR Holdings Purchasing` app.
+Signing flow validated against a live approved Affiliate app. `search` and `detail` both round-trip successfully. The script ports the exact algorithm from the official Python SDK (`iop-sdk-python-20220609`).
 
 ## When to use
 
-- The Puppeteer-based `fetch-listing` is failing (DOM rotation, anti-bot challenges, or rate-limited)
-- You need higher throughput or more reliable structured data
-- You have an approved AliExpress Affiliate app and credentials configured
+- The Puppeteer-based `fetch-listing` is failing (DOM rotation, anti-bot, rate-limited)
+- You need structured data without parsing HTML
+- The user explicitly asked for the API path
 
-For the no-auth path (default, no setup), use `fetch-listing` instead.
+For the no-auth path (zero setup), use `fetch-listing` instead.
+
+## Key trade-off vs. `fetch-listing`
+
+The Affiliate API only returns products from sellers who **opted in to the affiliate program**. Roughly the same SKUs as the catalogue but not all listings — some products visible on the public site won't be returned. If `detail <id>` returns "no products found", the product isn't affiliate-enabled — fall back to `fetch-listing`.
+
+The API also does **not expose shipping fees** to a destination country in the same call. Landed cost computed by this skill = item only. For ship-to-IL fees, use `fetch-listing` (or call the dedicated freight endpoint, not yet wired).
 
 ## API endpoints
 
-Two relevant calls (Affiliate API, not Dropshipping):
+| Method                                         | Purpose                                |
+|------------------------------------------------|----------------------------------------|
+| `aliexpress.affiliate.productdetail.get`       | Detail for one or more product IDs     |
+| `aliexpress.affiliate.product.query`           | Search the affiliate catalogue         |
 
-| Endpoint                                        | Purpose                                         |
-|-------------------------------------------------|-------------------------------------------------|
-| `aliexpress.affiliate.productdetail.get`        | Fetch full detail for one or more product IDs   |
-| `aliexpress.affiliate.product.query`            | Search the product catalogue (paginated)        |
-
-Base URL: `https://api-sg.aliexpress.com/sync`
+Gateway: `https://api-sg.aliexpress.com/sync`
 
 ## Credential storage
 
@@ -45,55 +49,98 @@ with `0600` perms. Schema:
   "aliexpress_affiliate": {
     "app_key": "...",
     "app_secret": "...",
-    "access_token": "...",
-    "refresh_token": "...",
-    "expires_at": "2026-..."
+    "gateway": "https://api-sg.aliexpress.com/sync",
+    "sdk_version": "iop-sdk-python-20220609"
   }
 }
 ```
 
-The plugin repo never contains credentials. The skill resolves the path at runtime and refuses to operate if the file is missing.
+The plugin repo never contains credentials. The skill resolves the path at runtime and refuses to operate if the file is missing or malformed.
 
 ## Setup
 
-1. Apply for an AliExpress Affiliate app at https://openservice.aliexpress.com/ — pick **Affiliates (individual)** as the collaborator type.
-2. After approval, create an app under **App Console → Create App → Affiliates API**.
-3. Complete the OAuth flow to obtain an access token (the callback URL set during app creation receives the `code` param).
-4. Write credentials to the config path above.
+1. Apply at https://openservice.aliexpress.com/ as **Affiliates (Individual)**.
+2. Create an Affiliate API app in the App Console. Once approved (status: online), grab the **App Key** and **App Secret**.
+3. Write them to the config path above with `chmod 600`.
 
-## Request signing (HMAC-SHA256)
+The Affiliate detail/query endpoints in this skill **do not require an OAuth access_token** — only the app-level signature.
 
-AliExpress signs requests by:
+## Usage
 
-1. Sorting all parameters (system + business) alphabetically by key
-2. Concatenating `key1value1key2value2...` into a single string
-3. Computing `HMAC-SHA256(string, app_secret).hexdigest().upper()`
-4. Appending as the `sign` parameter
+```bash
+node scripts/ali-api.mjs detail <productId>[,<productId>...]
+node scripts/ali-api.mjs search <query> [page_size]
+```
 
-Required system params per request:
+`USD_ILS=<rate>` env var overrides the live FX lookup if needed.
+
+## Output (detail)
+
+```
+1005009077622412 — Iron Wood Bedside Table Storage Rack ...
+  url: https://www.aliexpress.com/item/1005009077622412.html
+  price: $12.18 (was $16.46, 26% off)
+  rating: 4.5
+  shop: Jiexin Technology Store (https://www.aliexpress.com/store/1104400512)
+  fx: 1 USD = ₪2.9798 (frankfurter@2026-04-24)
+  item in ILS: ₪36.29   incl. VAT: ₪36.29   band: under-$75 (no VAT)
+  (note: shipping fee is not exposed by the affiliate API; landed cost = item only)
+```
+
+## Output (search)
+
+```
+query: "wooden bedside organizer glasses phone"   results: 5/6
+  <productId> — <title>
+    $<sale> (was $<original>)   <rating>
+    <clean product url>
+  ...
+```
+
+## Signing algorithm (reference)
+
+Mirrors `iop.base.sign(secret, api, parameters)` from the Python SDK:
+
+1. Sort parameter keys alphabetically.
+2. Concatenate `key1value1key2value2...` with no separator.
+3. If the API method name contains `/`, prepend the method name to the concat string. (Affiliate methods like `aliexpress.affiliate.productdetail.get` do **not** contain `/`, so no prefix.)
+4. `HMAC-SHA256(secret, concat).hexdigest().upper()` → `sign` parameter.
+
+System parameters always included before signing:
 
 - `app_key`
-- `timestamp` — Unix milliseconds
-- `sign_method` — `hmac-sha256`
-- `format` — `json`
-- `v` — `2.0`
-- `method` — e.g. `aliexpress.affiliate.productdetail.get`
+- `sign_method` = `sha256`
+- `timestamp` = `str(int(time.time())) + '000'` (Unix seconds × 1000, as a string)
+- `partner_id` = SDK version identifier (`iop-sdk-python-20220609`)
+- `method` = the API method name
+- `simplify` = `false`
+- `format` = `json`
 
-Reference implementation: see [FindMyDeal index.js](https://github.com/AdirCohen333/FindMyDeal/blob/main/index.js) — uses the same signing pattern against the DS endpoints (sub `aliexpress.affiliate.*` for `aliexpress.ds.*`).
+## What we drop from the API response
 
-## Output format
+The raw API returns affiliate-specific fields not relevant to purchasing decisions. The script normalises and drops:
 
-Same as `fetch-listing` — title, price, ship-to-IL fee, lead time, ratings, store, landed cost (subtotal + optional 18% VAT band). The skill normalises the API response into this shape so downstream skills don't care which path was used.
+- `commission_rate`, `hot_product_commission_rate`
+- `promotion_link` (tracked affiliate URL — replaced with the clean product URL)
+- `sku_id`
+- `app_sale_price`, `app_sale_price_currency`, `target_app_sale_price*`
+- `sale_price`, `sale_price_currency` (CNY-denominated, redundant with USD-denominated `target_*`)
+- `lastest_volume`, `tax_rate`
+- `second_level_category_id`, `first_level_category_id`
+- `product_small_image_urls` (kept only `product_main_image_url`)
+
+The full raw response is still available if needed — the normalisation happens only in the printed summary.
 
 ## Out of scope
 
-- **Search** — eventually `search-aliexpress-api` (sibling to the current Playwright-based `search-aliexpress`).
-- **Order placement** — DS API only (we registered as Affiliate, not DS).
+- **Shipping fee to IL** — not exposed by detail/query; use `fetch-listing` for that.
+- **Order placement / tracking** — would require the DS (dropshipping) API, which we did not register for.
+- **Authenticated user-context calls** — none of the methods used here need OAuth `access_token`.
 
-## Validation checklist (when wired)
+## Validation checklist
 
-1. `config.json` resolved from `CLAUDE_USER_DATA` / XDG path.
-2. `app_key`, `app_secret`, `access_token` all non-empty.
-3. Signature computed matches AliExpress's expected format (verify with their sandbox).
-4. Response status `0` or `00` indicates success — log `code` + `msg` on any other.
-5. Output structure matches `fetch-listing` so consumers are interchangeable.
+1. `config.json` resolved from canonical path; `app_key` + `app_secret` non-empty.
+2. `search` with a generic query returns ≥1 result and HTTP 200.
+3. `detail` for a known affiliate-enabled product ID returns `current_record_count` ≥ 1.
+4. FX lookup populates `fx-cache.json` in the plugin data dir.
+5. Output drops all fields listed in "What we drop" above.
