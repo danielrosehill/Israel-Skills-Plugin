@@ -1,29 +1,39 @@
 ---
 name: fetch-listing-api
-description: Use when the user wants AliExpress product data fetched via the **official AliExpress Affiliate API** (HMAC-SHA256 signed requests against `api-sg.aliexpress.com/sync`) rather than the no-auth Puppeteer scraper. More reliable long-term, higher rate limits, structured response. Supports two modes — `detail <productId>` for one or more product IDs, and `search <query>` for catalogue search. Output is normalised to drop affiliate-specific fields (commission rates, tracked promotion links) and surface only purchasing-relevant data: title, price USD, original price, rating, shop, plus computed ILS landed cost via live FX. Trigger phrases — "use the aliexpress api", "fetch via affiliate api", "scrape is broken use the api", "search aliexpress affiliate".
+description: Fallback for `fetch-listing` when the no-auth scraper is broken. Calls the official AliExpress Affiliate API (HMAC-SHA256 signed against `api-sg.aliexpress.com/sync`) — counterintuitively returns LESS buyer-relevant data than the scraper (no shipping fees, no reviews, no specs, no lead time) because the API is designed for affiliate-marketing publishers, not buyer-side analysis. Use only when the scraper fails (DOM rotation, anti-bot, rate-limit) or for a quick affiliate-catalogue search without spinning up Puppeteer. Two modes — `detail <productId>` and `search <query>`. Output normalised to drop affiliate-specific fields (commission rates, tracked promotion links). Trigger phrases — "scraper is broken fall back to the api", "use the affiliate api", "scrape failed try the api".
 ---
 
-# Fetch AliExpress Listing (Official Affiliate API)
+# Fetch AliExpress Listing (Official Affiliate API) — Fallback
 
-Authenticated counterpart to `fetch-listing`. Uses the AliExpress Affiliate Open Platform API (signed with HMAC-SHA256) instead of HTML scraping.
+**Use as a fallback to `fetch-listing`, not a replacement.** Counterintuitive but accurate: the no-auth scraper returns more buyer-relevant data than the official API. Reach for this skill only when the scraper breaks.
 
 ## Status: ✅ validated end-to-end
 
 Signing flow validated against a live approved Affiliate app. `search` and `detail` both round-trip successfully. The script ports the exact algorithm from the official Python SDK (`iop-sdk-python-20220609`).
 
-## When to use
+## Why a fallback (not primary)
 
-- The Puppeteer-based `fetch-listing` is failing (DOM rotation, anti-bot, rate-limited)
-- You need structured data without parsing HTML
+The AliExpress Affiliate API is built for affiliate-marketing publishers — its job is to drive conversions and track commission, not to support buyer-side analysis. Several fields a buyer cares about are simply not in the response:
+
+| Field                       | `fetch-listing` (scraper) | `fetch-listing-api` (this skill) |
+|-----------------------------|---------------------------|----------------------------------|
+| Title, price, image         | ✅                        | ✅                                |
+| Shipping fee (to IL)        | ✅                        | ❌                                |
+| Shipping lead time          | ✅                        | ❌                                |
+| Reviews / review snippets   | ✅                        | ❌                                |
+| Specs / variants            | ✅                        | ❌                                |
+| Top-rated store flag        | ✅                        | ❌ (only `shop_id`)               |
+| Affiliate-catalogue only    | ❌                        | ✅ (limitation)                   |
+
+The API also only returns products from sellers who **opted in to the affiliate program** — some publicly visible listings will return `current_record_count: 0`.
+
+## When to actually use this skill
+
+- The Puppeteer-based `fetch-listing` is failing (DOM rotation, anti-bot challenge, persistent rate-limit)
+- You need a quick search across the affiliate catalogue without spinning up Puppeteer
 - The user explicitly asked for the API path
 
-For the no-auth path (zero setup), use `fetch-listing` instead.
-
-## Key trade-off vs. `fetch-listing`
-
-The Affiliate API only returns products from sellers who **opted in to the affiliate program**. Roughly the same SKUs as the catalogue but not all listings — some products visible on the public site won't be returned. If `detail <id>` returns "no products found", the product isn't affiliate-enabled — fall back to `fetch-listing`.
-
-The API also does **not expose shipping fees** to a destination country in the same call. Landed cost computed by this skill = item only. For ship-to-IL fees, use `fetch-listing` (or call the dedicated freight endpoint, not yet wired).
+For everything else, prefer `fetch-listing`.
 
 ## API endpoints
 
